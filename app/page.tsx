@@ -233,6 +233,7 @@ export default function Home() {
                     onHighlight={handleHighlight}
                     onDelete={handleTextDelete}
                     highlights={highlights}
+                    onHighlightDelete={handleHighlightDelete}
                   />
                   
                   {/* 显示当前文档相关的高亮卡片 */}

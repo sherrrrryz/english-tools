@@ -6,14 +6,22 @@ interface TextReaderProps {
   onHighlight: (highlight: Highlight) => void;
   onDelete: (id: string) => void;
   highlights: Highlight[]; // 添加highlights属性以获取当前文档的所有高亮
+  onHighlightDelete?: (id: string) => void; // 添加删除高亮的回调
 }
 
-export default function TextReader({ document, onHighlight, onDelete, highlights }: TextReaderProps) {
+export default function TextReader({ document, onHighlight, onDelete, highlights, onHighlightDelete }: TextReaderProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   
   // 过滤出属于当前文档的高亮
   const documentHighlights = highlights.filter(h => h.textId === document.id);
   
+  // 处理高亮删除
+  const handleHighlightDelete = (id: string) => {
+    if (onHighlightDelete) {
+      onHighlightDelete(id);
+    }
+  };
+
   // 渲染带高亮的文本内容
   const renderHighlightedContent = () => {
     let content = document.content;
@@ -50,14 +58,26 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
         );
       }
       
-      // 添加高亮文本
+      // 添加高亮文本，包含悬停时显示的删除按钮
       segments.push(
         <span 
           key={`highlight-${index}`} 
-          className="bg-yellow-200 px-1 rounded shadow-sm text-blue-900 font-medium hover:bg-yellow-300 transition-colors duration-200"
+          className="relative group bg-yellow-200 px-1 rounded shadow-sm text-blue-900 font-medium hover:bg-yellow-300 transition-colors duration-200"
           title={`创建于: ${new Date(highlight.timestamp).toLocaleString()}`}
         >
           {highlight.highlightedText}
+          <button
+            className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white text-red-500 border border-red-200 p-1 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleHighlightDelete(highlight.id);
+            }}
+            aria-label="取消高亮"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </span>
       );
       
@@ -110,7 +130,12 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
     return text.substring(startPos, endPos).trim();
   };
 
-  const handleTextSelection = () => {
+  const handleTextSelection = (e: React.MouseEvent) => {
+    // 如果点击的是删除按钮或其子元素，不处理选择
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    
     const selection = window.getSelection();
     if (!selection || selection.toString().trim() === '') return;
 
