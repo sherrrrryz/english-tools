@@ -54,7 +54,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
       segments.push(
         <span 
           key={`highlight-${index}`} 
-          className="bg-yellow-200 px-1 rounded"
+          className="bg-yellow-200 px-1 rounded shadow-sm text-blue-900 font-medium hover:bg-yellow-300 transition-colors duration-200"
           title={`创建于: ${new Date(highlight.timestamp).toLocaleString()}`}
         >
           {highlight.highlightedText}
@@ -144,26 +144,61 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
   };
 
   return (
-    <div className="mb-6 p-4 bg-gray-50 rounded shadow">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold">
-          {new Date(document.timestamp).toLocaleString()}
-        </h3>
+    <div className="card mb-6 overflow-hidden">
+      <div className="card-header">
+        <div className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <div>
+            <span className="text-lg font-semibold">
+              {new Date(document.timestamp).toLocaleDateString('zh-CN', { 
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </span>
+            <div className="text-xs text-gray-500">
+              {new Date(document.timestamp).toLocaleTimeString('zh-CN', { 
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
+          </div>
+        </div>
         <button
           onClick={() => onDelete(document.id)}
-          className="text-red-500 hover:text-red-700"
+          className="text-gray-500 hover:text-red-600 transition-colors duration-200 flex items-center"
           aria-label="删除"
         >
-          删除
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
         </button>
       </div>
       <div
         ref={contentRef}
-        className="prose max-w-none"
+        className="card-body prose max-w-none bg-white text-gray-800 text-base leading-relaxed"
         onMouseUp={handleTextSelection}
         style={{ whiteSpace: 'pre-wrap' }}
       >
-        {renderHighlightedContent()}
+        <div className="p-1">
+          {renderHighlightedContent()}
+        </div>
+      </div>
+      <div className="bg-gray-50 p-3 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
+        <div className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>选择文本可添加到单词本</span>
+        </div>
+        <div className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span>高亮数: {documentHighlights.length}</span>
+        </div>
       </div>
     </div>
   );

@@ -14,9 +14,20 @@ export default function RootLayout({
   return (
     <html lang="zh">
       <body>
-        <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-md">
+          <div className="container mx-auto px-4 py-6 max-w-5xl">
+            <h1 className="text-2xl font-bold">文本阅读器</h1>
+            <p className="text-blue-100 mt-1">轻松阅读和高亮标注你的文本</p>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8 max-w-5xl">
           {children}
         </main>
+        <footer className="bg-gray-100 border-t border-gray-200 mt-12">
+          <div className="container mx-auto px-4 py-6 max-w-5xl text-center text-gray-500 text-sm">
+            文本阅读器 &copy; {new Date().getFullYear()}
+          </div>
+        </footer>
       </body>
     </html>
   )
