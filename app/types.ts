@@ -10,4 +10,5 @@ export interface Highlight {
   highlightedText: string;
   sentence: string;
   timestamp: number;
+  position?: number;
 } 

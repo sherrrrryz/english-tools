@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TextDocument, Highlight } from '../types';
 
 interface TextReaderProps {
@@ -9,6 +9,8 @@ interface TextReaderProps {
 }
 
 export default function TextReader({ document, onHighlight, onDelete, highlights }: TextReaderProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  
   // 过滤出属于当前文档的高亮
   const documentHighlights = highlights.filter(h => h.textId === document.id);
   
@@ -19,19 +21,25 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
     let lastIndex = 0;
     
     // 按高亮出现位置排序
-    const sortedHighlights = [...documentHighlights].sort((a, b) => {
-      const indexA = content.indexOf(a.highlightedText);
-      const indexB = content.indexOf(b.highlightedText);
-      return indexA - indexB;
-    });
+    const sortedHighlights = [...documentHighlights]
+      .sort((a, b) => {
+        // 使用保存的位置信息
+        if (a.position !== undefined && b.position !== undefined) {
+          return a.position - b.position;
+        }
+        return 0;
+      });
     
     // 分段渲染文本，高亮部分使用特殊样式
     for (const highlight of sortedHighlights) {
-      const highlightText = highlight.highlightedText;
-      const index = content.indexOf(highlightText, lastIndex);
-      
-      // 如果找不到高亮文本，跳过
+      // 使用保存的位置信息
+      const index = highlight.position ?? -1;
       if (index === -1) continue;
+      
+      // 验证位置的文本是否匹配
+      if (content.substring(index, index + highlight.highlightedText.length) !== highlight.highlightedText) {
+        continue;
+      }
       
       // 添加高亮前的普通文本
       if (index > lastIndex) {
@@ -49,11 +57,11 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
           className="bg-yellow-200 px-1 rounded"
           title={`创建于: ${new Date(highlight.timestamp).toLocaleString()}`}
         >
-          {highlightText}
+          {highlight.highlightedText}
         </span>
       );
       
-      lastIndex = index + highlightText.length;
+      lastIndex = index + highlight.highlightedText.length;
     }
     
     // 添加最后一段普通文本
@@ -68,51 +76,71 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
     return segments.length > 0 ? segments : content;
   };
 
-  const handleTextSelection = () => {
-    const selection = window.getSelection();
-    if (!selection || selection.toString().trim() === '') return;
-
-    const selectedStr = selection.toString().trim();
-
-    // 获取包含所选文本的句子
+  // 获取选中文本在文档中的精确位置
+  const getSelectionPosition = (selection: Selection): number | null => {
+    if (!contentRef.current) return null;
+    
     const range = selection.getRangeAt(0);
-    const startNode = range.startContainer;
-    const text = startNode.textContent || '';
-    
-    // 简单分句，按句号、问号、感叹号分割
-    const sentences = text.split(/[.!?。！？]/);
-    let sentenceWithHighlight = '';
-    
-    for (const sentence of sentences) {
-      if (sentence.includes(selectedStr)) {
-        sentenceWithHighlight = sentence.trim();
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(contentRef.current);
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+    return preCaretRange.toString().length;
+  };
+
+  // 获取包含指定位置的完整句子
+  const getSentenceAtPosition = (text: string, position: number): string => {
+    // 查找句子的开始位置（上一个句号之后）
+    let startPos = 0;
+    for (let i = position; i >= 0; i--) {
+      if (/[.!?。！？]/.test(text[i])) {
+        startPos = i + 1;
         break;
       }
     }
     
-    // 如果无法找到包含高亮文本的句子，就使用前后50个字符
-    if (!sentenceWithHighlight) {
-      const nodeText = text;
-      const selectionIndex = nodeText.indexOf(selectedStr);
-      if (selectionIndex >= 0) {
-        const start = Math.max(0, selectionIndex - 50);
-        const end = Math.min(nodeText.length, selectionIndex + selectedStr.length + 50);
-        sentenceWithHighlight = nodeText.substring(start, end).trim();
-      } else {
-        sentenceWithHighlight = selectedStr;
+    // 查找句子的结束位置（下一个句号）
+    let endPos = text.length;
+    for (let i = position; i < text.length; i++) {
+      if (/[.!?。！？]/.test(text[i])) {
+        endPos = i + 1;
+        break;
       }
     }
+    
+    return text.substring(startPos, endPos).trim();
+  };
+
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.toString().trim() === '') return;
+
+    const selectedText = selection.toString().trim();
+    if (!selectedText) return;
+
+    // 获取选中文本在文档中的精确位置
+    const position = getSelectionPosition(selection);
+    if (position === null) return;
+
+    // 验证选中的文本
+    if (document.content.substring(position, position + selectedText.length) !== selectedText) {
+      console.error('选中文本位置验证失败');
+      return;
+    }
+
+    // 获取选中文本所在的完整句子
+    const sentence = getSentenceAtPosition(document.content, position);
 
     const newHighlight: Highlight = {
       id: Date.now().toString(),
       textId: document.id,
-      highlightedText: selectedStr,
-      sentence: sentenceWithHighlight,
+      highlightedText: selectedText,
+      sentence: sentence,
       timestamp: Date.now(),
+      position: position
     };
 
     onHighlight(newHighlight);
-    selection.removeAllRanges(); // 清除选择，避免重复高亮
+    selection.removeAllRanges();
   };
 
   return (
@@ -130,6 +158,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
         </button>
       </div>
       <div
+        ref={contentRef}
         className="prose max-w-none"
         onMouseUp={handleTextSelection}
         style={{ whiteSpace: 'pre-wrap' }}
