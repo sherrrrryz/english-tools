@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '文本阅读器',
-  description: '支持高亮标注的文本阅读器',
+  title: 'Text Reader',
+  description: 'Text reader with highlight annotation',
 }
 
 export default function RootLayout({
@@ -12,12 +12,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh">
+    <html lang="en">
       <body>
         <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-md">
           <div className="container mx-auto px-4 py-6 max-w-5xl">
-            <h1 className="text-2xl font-bold">文本阅读器</h1>
-            <p className="text-blue-100 mt-1">轻松阅读和高亮标注你的文本</p>
+            <h1 className="text-2xl font-bold">Text Reader</h1>
+            <p className="text-blue-100 mt-1">Easily read and highlight your text</p>
           </div>
         </header>
         <div className="container mx-auto px-4 max-w-5xl">
@@ -28,7 +28,7 @@ export default function RootLayout({
         </main>
         <footer className="bg-gray-100 border-t border-gray-200 mt-12">
           <div className="container mx-auto px-4 py-6 max-w-5xl text-center text-gray-500 text-sm">
-            文本阅读器 &copy; {new Date().getFullYear()}
+            Text Reader &copy; {new Date().getFullYear()}
           </div>
         </footer>
       </body>

@@ -63,7 +63,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
         <span 
           key={`highlight-${index}`} 
           className="relative group bg-yellow-200 px-1 rounded shadow-sm text-blue-900 font-medium hover:bg-yellow-300 transition-colors duration-200"
-          title={`创建于: ${new Date(highlight.timestamp).toLocaleString()}`}
+          title={`Created: ${new Date(highlight.timestamp).toLocaleString()}`}
         >
           {highlight.highlightedText}
           <button
@@ -72,7 +72,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
               e.stopPropagation();
               handleHighlightDelete(highlight.id);
             }}
-            aria-label="取消高亮"
+            aria-label="Remove highlight"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -148,7 +148,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
 
     // 验证选中的文本
     if (document.content.substring(position, position + selectedText.length) !== selectedText) {
-      console.error('选中文本位置验证失败');
+      console.error('Selected text position validation failed');
       return;
     }
 
@@ -177,14 +177,14 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
           </svg>
           <div>
             <span className="text-lg font-semibold">
-              {new Date(document.timestamp).toLocaleDateString('zh-CN', { 
+              {new Date(document.timestamp).toLocaleDateString('en-US', { 
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
               })}
             </span>
             <div className="text-xs text-gray-500">
-              {new Date(document.timestamp).toLocaleTimeString('zh-CN', { 
+              {new Date(document.timestamp).toLocaleTimeString('en-US', { 
                 hour: '2-digit',
                 minute: '2-digit'
               })}
@@ -194,7 +194,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
         <button
           onClick={() => onDelete(document.id)}
           className="text-gray-500 hover:text-red-600 transition-colors duration-200 flex items-center"
-          aria-label="删除"
+          aria-label="Delete"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -216,13 +216,13 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>选择文本可添加到单词本</span>
+          <span>Select text to add to vocabulary</span>
         </div>
         <div className="flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          <span>高亮数: {documentHighlights.length}</span>
+          <span>Highlights: {documentHighlights.length}</span>
         </div>
       </div>
     </div>

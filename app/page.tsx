@@ -128,7 +128,7 @@ export default function Home() {
         linkElement.click();
       } catch (error) {
         console.error('导出数据时出错:', error);
-        alert('导出数据失败，请稍后再试');
+        alert('Export failed, please try again later');
       }
     }
   };
@@ -159,10 +159,10 @@ export default function Home() {
           setHighlights(importedData.highlights);
         }
         
-        alert('数据导入成功');
+        alert('Data imported successfully');
       } catch (error) {
         console.error('导入数据时出错:', error);
-        alert('导入数据失败，请确保文件格式正确');
+        alert('Import failed, please ensure the file is in the correct format');
       }
     };
     
@@ -178,7 +178,7 @@ export default function Home() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-        <p className="text-lg">正在加载数据...</p>
+        <p className="text-lg">Loading data...</p>
       </div>
     );
   }
@@ -195,19 +195,19 @@ export default function Home() {
         <div className="md:col-span-3">
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">我的文本</h2>
+              <h2 className="text-2xl font-bold text-gray-800">My Texts</h2>
               <div className="flex gap-2">
                 <button
                   onClick={handleExportData}
                   className="btn-success text-sm"
                 >
-                  导出数据
+                  Export Data
                 </button>
                 <button
                   onClick={handleImportData}
                   className="btn-primary text-sm"
                 >
-                  导入数据
+                  Import Data
                 </button>
                 <input
                   type="file"
@@ -226,7 +226,7 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <p className="text-gray-500 text-lg">暂无内容，请上传文本</p>
+                <p className="text-gray-500 text-lg">No content yet, please upload text</p>
               </div>
             ) : (
               documents.map(doc => (
@@ -247,18 +247,19 @@ export default function Home() {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                           </svg>
-                          单词本
+                          Vocabulary
                         </h3>
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {highlights
                             .filter(h => h.textId === doc.id)
                             .map(highlight => (
-                              <HighlightCard
+                              <HighlightCard 
                                 key={highlight.id}
                                 highlight={highlight}
                                 onDelete={handleHighlightDelete}
                               />
-                            ))}
+                            ))
+                          }
                         </div>
                       </div>
                     ) : null}

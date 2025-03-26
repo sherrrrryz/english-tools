@@ -11,7 +11,7 @@ export default function HighlightCard({ highlight, onDelete }: HighlightCardProp
       <div className="p-3 border-b border-gray-100 bg-blue-50 flex justify-between items-center">
         <div className="flex items-center">
           <span className="text-xs text-gray-500">
-            {new Date(highlight.timestamp).toLocaleString('zh-CN', {
+            {new Date(highlight.timestamp).toLocaleString('en-US', {
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
@@ -20,19 +20,19 @@ export default function HighlightCard({ highlight, onDelete }: HighlightCardProp
           </span>
           {highlight.isLearned && (
             <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-              已学习
+              Learned
             </span>
           )}
           {highlight.isFavorite && (
             <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
-              已收藏
+              Favorite
             </span>
           )}
         </div>
         <button
           onClick={() => onDelete(highlight.id)}
           className="text-gray-400 hover:text-red-500 transition-colors duration-200"
-          aria-label="删除高亮"
+          aria-label="Delete highlight"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

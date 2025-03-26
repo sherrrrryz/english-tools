@@ -46,7 +46,7 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
   return (
     <div className="card mb-8">
       <div className="card-header">
-        <h2 className="text-xl font-bold">上传新文本</h2>
+        <h2 className="text-xl font-bold">Upload New Text</h2>
       </div>
       <div className="card-body">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -60,7 +60,7 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                选择文件
+                Choose File
               </button>
               <input
                 type="file"
@@ -84,7 +84,7 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
                 onChange={(e) => setText(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 rows={5}
-                placeholder="在此输入文本或上传文本文件..."
+                placeholder="Enter text here or upload a text file..."
                 required
               />
             </div>
@@ -96,7 +96,7 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 20l3-3m0 0l3 3m-3-3v-7" />
             </svg>
-            上传文本
+            Upload Text
           </button>
         </form>
       </div>
