@@ -9,14 +9,26 @@ export default function HighlightCard({ highlight, onDelete }: HighlightCardProp
   return (
     <div className="card hover:shadow-md transition-shadow duration-200">
       <div className="p-3 border-b border-gray-100 bg-blue-50 flex justify-between items-center">
-        <span className="text-xs text-gray-500">
-          {new Date(highlight.timestamp).toLocaleString('zh-CN', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-        </span>
+        <div className="flex items-center">
+          <span className="text-xs text-gray-500">
+            {new Date(highlight.timestamp).toLocaleString('zh-CN', {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </span>
+          {highlight.isLearned && (
+            <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+              已学习
+            </span>
+          )}
+          {highlight.isFavorite && (
+            <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
+              已收藏
+            </span>
+          )}
+        </div>
         <button
           onClick={() => onDelete(highlight.id)}
           className="text-gray-400 hover:text-red-500 transition-colors duration-200"

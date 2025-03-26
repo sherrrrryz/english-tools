@@ -20,7 +20,10 @@ export default function RootLayout({
             <p className="text-blue-100 mt-1">轻松阅读和高亮标注你的文本</p>
           </div>
         </header>
-        <main className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-5xl">
+          {/* 导航栏在此处注入，在客户端渲染 */}
+        </div>
+        <main className="container mx-auto px-4 py-4 max-w-5xl">
           {children}
         </main>
         <footer className="bg-gray-100 border-t border-gray-200 mt-12">

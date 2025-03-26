@@ -11,4 +11,8 @@ export interface Highlight {
   sentence: string;
   timestamp: number;
   position?: number;
-} 
+  isLearned?: boolean;
+  isFavorite?: boolean;
+}
+
+export type WordFilterType = 'all' | 'learned' | 'favorite' | 'unlearned'; 

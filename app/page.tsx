@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import TextUploader from './components/TextUploader';
 import TextReader from './components/TextReader';
 import HighlightCard from './components/HighlightCard';
+import Navbar from './components/Navbar';
 import { TextDocument, Highlight } from './types';
 
 export default function Home() {
@@ -184,6 +185,8 @@ export default function Home() {
 
   return (
     <div>
+      <Navbar />
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-3">
           <TextUploader onTextUpload={handleTextUpload} />
