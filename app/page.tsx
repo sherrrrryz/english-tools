@@ -66,35 +66,37 @@ export default function Home() {
               <p className="text-gray-500">暂无内容，请上传文本。</p>
             ) : (
               documents.map(doc => (
-                <TextReader
-                  key={doc.id}
-                  document={doc}
-                  onHighlight={handleHighlight}
-                  onDelete={handleTextDelete}
-                  highlights={highlights}
-                />
+                <div key={doc.id} className="mb-8">
+                  <TextReader
+                    document={doc}
+                    onHighlight={handleHighlight}
+                    onDelete={handleTextDelete}
+                    highlights={highlights}
+                  />
+                  
+                  {/* 显示当前文档相关的高亮卡片 */}
+                  <div className="ml-4 mt-2">
+                    {highlights.filter(h => h.textId === doc.id).length > 0 ? (
+                      <div>
+                        <h3 className="text-md font-semibold mb-2">单词本</h3>
+                        <div className="space-y-2">
+                          {highlights
+                            .filter(h => h.textId === doc.id)
+                            .map(highlight => (
+                              <HighlightCard
+                                key={highlight.id}
+                                highlight={highlight}
+                                onDelete={handleHighlightDelete}
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               ))
             )}
           </div>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-bold mb-4">我的高亮卡片</h2>
-          {highlights.length === 0 ? (
-            <p className="text-gray-500">
-              暂无高亮内容。请在上方选择文本来创建高亮。
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {highlights.map(highlight => (
-                <HighlightCard
-                  key={highlight.id}
-                  highlight={highlight}
-                  onDelete={handleHighlightDelete}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
