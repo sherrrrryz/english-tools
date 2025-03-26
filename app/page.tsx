@@ -61,7 +61,7 @@ export default function Home() {
           <TextUploader onTextUpload={handleTextUpload} />
           
           <div>
-            <h2 className="text-xl font-bold mb-4">我的文本</h2>
+            <h2 className="text-xl font-bold mb-4">文本</h2>
             {documents.length === 0 ? (
               <p className="text-gray-500">暂无内容，请上传文本。</p>
             ) : (
