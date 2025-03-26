@@ -56,7 +56,7 @@ export default function Home() {
     <div>
       <h1 className="text-3xl font-bold mb-8 text-center">文本阅读器</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="flex flex-col gap-8">
         <div className="space-y-6">
           <TextUploader onTextUpload={handleTextUpload} />
           
@@ -82,7 +82,7 @@ export default function Home() {
           <h2 className="text-xl font-bold mb-4">我的高亮卡片</h2>
           {highlights.length === 0 ? (
             <p className="text-gray-500">
-              暂无高亮内容。请在左侧选择文本来创建高亮。
+              暂无高亮内容。请在上方选择文本来创建高亮。
             </p>
           ) : (
             <div className="space-y-4">
