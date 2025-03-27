@@ -15,6 +15,18 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
   // 过滤出属于当前文档的高亮
   const documentHighlights = highlights.filter(h => h.textId === document.id);
   
+  // 添加复制功能
+  const handleCopy = () => {
+    if (contentRef.current) {
+      const text = contentRef.current.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        // 可以添加一个提示，但这里我们暂时不添加
+      }).catch(err => {
+        console.error('复制失败:', err);
+      });
+    }
+  };
+  
   // 处理高亮删除
   const handleHighlightDelete = (id: string) => {
     if (onHighlightDelete) {
@@ -191,15 +203,26 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
             </div>
           </div>
         </div>
-        <button
-          onClick={() => onDelete(document.id)}
-          className="text-gray-500 hover:text-red-600 transition-colors duration-200 flex items-center"
-          aria-label="Delete"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleCopy}
+            className="text-gray-500 hover:text-blue-600 transition-colors duration-200 flex items-center"
+            title="复制全文"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+          </button>
+          <button
+            onClick={() => onDelete(document.id)}
+            className="text-gray-500 hover:text-red-600 transition-colors duration-200 flex items-center"
+            aria-label="Delete"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
       </div>
       <div
         ref={contentRef}
