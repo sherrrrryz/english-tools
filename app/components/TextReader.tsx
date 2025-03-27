@@ -7,10 +7,13 @@ interface TextReaderProps {
   onDelete: (id: string) => void;
   highlights: Highlight[]; // 添加highlights属性以获取当前文档的所有高亮
   onHighlightDelete?: (id: string) => void; // 添加删除高亮的回调
+  onDocumentUpdate?: (id: string, content: string) => void; // 添加更新文档内容的回调
 }
 
-export default function TextReader({ document, onHighlight, onDelete, highlights, onHighlightDelete }: TextReaderProps) {
+export default function TextReader({ document, onHighlight, onDelete, highlights, onHighlightDelete, onDocumentUpdate }: TextReaderProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(document.content);
   
   // 过滤出属于当前文档的高亮
   const documentHighlights = highlights.filter(h => h.textId === document.id);
@@ -34,14 +37,52 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
     }
   };
 
+  // 切换编辑模式
+  const toggleEditMode = () => {
+    if (isEditing && onDocumentUpdate) {
+      // 只有当内容发生变化时才更新
+      if (editContent !== document.content) {
+        // 保存编辑内容
+        onDocumentUpdate(document.id, editContent);
+      }
+    } else {
+      // 进入编辑模式时，重置编辑内容为当前文档内容
+      setEditContent(document.content);
+    }
+    setIsEditing(!isEditing);
+  };
+
+  // 取消编辑
+  const cancelEdit = () => {
+    setEditContent(document.content);
+    setIsEditing(false);
+  };
+
+  // 编辑内容变更
+  const handleEditChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditContent(e.target.value);
+  };
+
   // 渲染带高亮的文本内容
   const renderHighlightedContent = () => {
     let content = document.content;
     let segments = [];
     let lastIndex = 0;
     
+    // 过滤掉position为undefined的高亮，尝试重新匹配位置
+    const highlightsToRender = [...documentHighlights].map(highlight => {
+      // 如果位置未定义，尝试在文本中查找匹配项
+      if (highlight.position === undefined) {
+        const index = content.indexOf(highlight.highlightedText);
+        if (index !== -1) {
+          return { ...highlight, position: index };
+        }
+      }
+      return highlight;
+    }).filter(h => h.position !== undefined);
+    
     // 按高亮出现位置排序
-    const sortedHighlights = [...documentHighlights]
+    const sortedHighlights = highlightsToRender
       .sort((a, b) => {
         // 使用保存的位置信息
         if (a.position !== undefined && b.position !== undefined) {
@@ -205,6 +246,32 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={toggleEditMode}
+            className={`transition-colors duration-200 flex items-center ${isEditing ? 'text-green-600' : 'text-gray-500 hover:text-blue-600'}`}
+            title={isEditing ? "保存编辑" : "编辑文本"}
+          >
+            {isEditing ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            )}
+          </button>
+          {isEditing && (
+            <button
+              onClick={cancelEdit}
+              className="text-red-500 hover:text-red-600 transition-colors duration-200 flex items-center"
+              title="取消编辑"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          <button
             onClick={handleCopy}
             className="text-gray-500 hover:text-blue-600 transition-colors duration-200 flex items-center"
             title="复制全文"
@@ -224,16 +291,27 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
           </button>
         </div>
       </div>
-      <div
-        ref={contentRef}
-        className="card-body prose max-w-none bg-white text-gray-800 text-base leading-relaxed"
-        onMouseUp={handleTextSelection}
-        style={{ whiteSpace: 'pre-wrap' }}
-      >
-        <div className="p-1">
-          {renderHighlightedContent()}
+      {isEditing ? (
+        <div className="card-body bg-white text-gray-800">
+          <textarea
+            value={editContent}
+            onChange={handleEditChange}
+            className="w-full h-64 p-4 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{ whiteSpace: 'pre-wrap' }}
+          />
         </div>
-      </div>
+      ) : (
+        <div
+          ref={contentRef}
+          className="card-body prose max-w-none bg-white text-gray-800 text-base leading-relaxed"
+          onMouseUp={handleTextSelection}
+          style={{ whiteSpace: 'pre-wrap' }}
+        >
+          <div className="p-1">
+            {renderHighlightedContent()}
+          </div>
+        </div>
+      )}
       <div className="bg-gray-50 p-3 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
         <div className="flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

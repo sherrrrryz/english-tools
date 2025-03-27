@@ -108,6 +108,33 @@ export default function Home() {
     setHighlights(prev => prev.filter(highlight => highlight.id !== id));
   };
 
+  // 处理文档内容更新
+  const handleDocumentUpdate = (id: string, newContent: string) => {
+    // 先获取旧内容
+    const oldDoc = documents.find(doc => doc.id === id);
+    const oldContent = oldDoc?.content || '';
+    
+    // 更新文档内容
+    setDocuments(prev => 
+      prev.map(doc => 
+        doc.id === id 
+          ? { ...doc, content: newContent }
+          : doc
+      )
+    );
+    
+    // 只有当内容实际发生变化时才重置相关高亮的位置信息
+    if (oldContent !== newContent) {
+      setHighlights(prev => 
+        prev.map(highlight => 
+          highlight.textId === id
+            ? { ...highlight, position: undefined }
+            : highlight
+        )
+      );
+    }
+  };
+
   // 导出数据为JSON文件
   const handleExportData = () => {
     if (typeof window !== 'undefined') {
@@ -237,6 +264,7 @@ export default function Home() {
                     onDelete={handleTextDelete}
                     highlights={highlights}
                     onHighlightDelete={handleHighlightDelete}
+                    onDocumentUpdate={handleDocumentUpdate}
                   />
                   
                   {/* 显示当前文档相关的高亮卡片 */}
