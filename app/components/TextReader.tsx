@@ -7,13 +7,14 @@ interface TextReaderProps {
   onDelete: (id: string) => void;
   highlights: Highlight[]; // 添加highlights属性以获取当前文档的所有高亮
   onHighlightDelete?: (id: string) => void; // 添加删除高亮的回调
-  onDocumentUpdate?: (id: string, content: string) => void; // 添加更新文档内容的回调
+  onDocumentUpdate?: (id: string, content: string, title: string) => void; // 添加更新文档内容的回调
 }
 
 export default function TextReader({ document, onHighlight, onDelete, highlights, onHighlightDelete, onDocumentUpdate }: TextReaderProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(document.content);
+  const [editTitle, setEditTitle] = useState(document.title || 'Untitled');
   
   // 过滤出属于当前文档的高亮
   const documentHighlights = highlights.filter(h => h.textId === document.id);
@@ -40,14 +41,15 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
   // 切换编辑模式
   const toggleEditMode = () => {
     if (isEditing && onDocumentUpdate) {
-      // 只有当内容发生变化时才更新
-      if (editContent !== document.content) {
+      // 只有当内容或标题发生变化时才更新
+      if (editContent !== document.content || editTitle !== document.title) {
         // 保存编辑内容
-        onDocumentUpdate(document.id, editContent);
+        onDocumentUpdate(document.id, editContent, editTitle);
       }
     } else {
-      // 进入编辑模式时，重置编辑内容为当前文档内容
+      // 进入编辑模式时，重置编辑内容和标题
       setEditContent(document.content);
+      setEditTitle(document.title || 'Untitled');
     }
     setIsEditing(!isEditing);
   };
@@ -55,6 +57,7 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
   // 取消编辑
   const cancelEdit = () => {
     setEditContent(document.content);
+    setEditTitle(document.title || 'Untitled');
     setIsEditing(false);
   };
 
@@ -223,72 +226,82 @@ export default function TextReader({ document, onHighlight, onDelete, highlights
 
   return (
     <div className="card mb-6 overflow-hidden">
-      <div className="card-header">
-        <div className="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
-          <div>
-            <span className="text-lg font-semibold">
-              {new Date(document.timestamp).toLocaleDateString('en-US', { 
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </span>
-            <div className="text-xs text-gray-500">
-              {new Date(document.timestamp).toLocaleTimeString('en-US', { 
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+      <div className="card-header w-full">
+        <div className="flex items-center w-full">
+          <div className="flex items-center flex-1 py-3 px-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <div className="min-w-0 flex-1">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="text-lg font-semibold bg-white border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                />
+              ) : (
+                <h2 className="text-lg font-semibold truncate">
+                  {document.title || 'Untitled'}
+                </h2>
+              )}
+              <div className="text-xs text-gray-500">
+                {new Date(document.timestamp).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleEditMode}
-            className={`transition-colors duration-200 flex items-center ${isEditing ? 'text-green-600' : 'text-gray-500 hover:text-blue-600'}`}
-            title={isEditing ? "保存编辑" : "编辑文本"}
-          >
-            {isEditing ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            )}
-          </button>
-          {isEditing && (
+          <div className="flex items-center gap-2 px-6 py-3 bg-gray-50">
             <button
-              onClick={cancelEdit}
-              className="text-red-500 hover:text-red-600 transition-colors duration-200 flex items-center"
-              title="取消编辑"
+              onClick={toggleEditMode}
+              className={`transition-colors duration-200 flex items-center ${isEditing ? 'text-green-600' : 'text-gray-500 hover:text-blue-600'}`}
+              title={isEditing ? "保存编辑" : "编辑文本"}
+            >
+              {isEditing ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              )}
+            </button>
+            {isEditing && (
+              <button
+                onClick={cancelEdit}
+                className="text-red-500 hover:text-red-600 transition-colors duration-200 flex items-center"
+                title="取消编辑"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={handleCopy}
+              className="text-gray-500 hover:text-blue-600 transition-colors duration-200 flex items-center"
+              title="复制全文"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
               </svg>
             </button>
-          )}
-          <button
-            onClick={handleCopy}
-            className="text-gray-500 hover:text-blue-600 transition-colors duration-200 flex items-center"
-            title="复制全文"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-            </svg>
-          </button>
-          <button
-            onClick={() => onDelete(document.id)}
-            className="text-gray-500 hover:text-red-600 transition-colors duration-200 flex items-center"
-            aria-label="Delete"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+            <button
+              onClick={() => onDelete(document.id)}
+              className="text-gray-500 hover:text-red-600 transition-colors duration-200 flex items-center"
+              aria-label="Delete"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
       {isEditing ? (

@@ -109,16 +109,16 @@ export default function Home() {
   };
 
   // 处理文档内容更新
-  const handleDocumentUpdate = (id: string, newContent: string) => {
+  const handleDocumentUpdate = (id: string, newContent: string, newTitle: string) => {
     // 先获取旧内容
     const oldDoc = documents.find(doc => doc.id === id);
     const oldContent = oldDoc?.content || '';
     
-    // 更新文档内容
+    // 更新文档内容和标题
     setDocuments(prev => 
       prev.map(doc => 
         doc.id === id 
-          ? { ...doc, content: newContent }
+          ? { ...doc, content: newContent, title: newTitle }
           : doc
       )
     );

@@ -2,6 +2,7 @@ export interface TextDocument {
   id: string;
   content: string;
   timestamp: number;
+  title?: string;
 }
 
 export interface Highlight {

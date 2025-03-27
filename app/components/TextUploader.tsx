@@ -7,6 +7,7 @@ interface TextUploaderProps {
 
 export default function TextUploader({ onTextUpload }: TextUploaderProps) {
   const [text, setText] = useState('');
+  const [title, setTitle] = useState('');
   const [fileName, setFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,10 +19,12 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
       id: Date.now().toString(),
       content: text,
       timestamp: Date.now(),
+      title: title.trim() || 'Untitled'
     };
 
     onTextUpload(newDocument);
     setText('');
+    setTitle('');
     setFileName('');
   };
 
@@ -30,6 +33,7 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
     if (!file) return;
 
     setFileName(file.name);
+    setTitle(file.name.replace(/\.[^/.]+$/, '')); // 使用文件名作为默认标题
     
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -78,26 +82,35 @@ export default function TextUploader({ onTextUpload }: TextUploaderProps) {
                 </span>
               )}
             </div>
-            <div className="relative">
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                rows={5}
-                placeholder="Enter text here or upload a text file..."
-                required
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                Title
+              </label>
+              <input
+                type="text"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter title (optional)"
+                className="w-full p-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Enter or paste your text here..."
+              className="w-full h-32 p-4 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            />
           </div>
-          <button
-            type="submit"
-            className="btn-primary self-start flex items-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 20l3-3m0 0l3 3m-3-3v-7" />
-            </svg>
-            Upload Text
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={!text.trim()}
+              className={`btn-primary ${!text.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Upload
+            </button>
+          </div>
         </form>
       </div>
     </div>
